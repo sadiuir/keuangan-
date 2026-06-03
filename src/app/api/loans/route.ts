@@ -16,7 +16,7 @@ const loanSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
 // Support toggling auto-debet or manual payments
 export async function PUT(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

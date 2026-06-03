@@ -16,7 +16,7 @@ const transactionSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { signToken } from '@/lib/auth';
+import { signToken, verifyToken } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         role: user.role,
       };
 
-      const token = signToken(sessionPayload);
+      const token = await signToken(sessionPayload);
 
       const response = NextResponse.json({
         success: true,
@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
         role: user.role,
       };
 
-      const token = signToken(sessionPayload);
+      const token = await signToken(sessionPayload);
 
       const response = NextResponse.json({
         success: true,
@@ -207,11 +207,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Sesi tidak valid' }, { status: 401 });
       }
 
-      let payload: any;
-      try {
-        const { verifyToken } = require('@/lib/auth');
-        payload = verifyToken(tokenCookie.value);
-      } catch (e) {
+      const payload = await verifyToken(tokenCookie.value);
+      if (!payload) {
         return NextResponse.json({ error: 'Sesi kedaluwarsa' }, { status: 401 });
       }
 
@@ -274,7 +271,7 @@ export async function POST(req: NextRequest) {
         email: updatedUser.email,
         role: updatedUser.role,
       };
-      const newToken = signToken(sessionPayload);
+      const newToken = await signToken(sessionPayload);
 
       const response = NextResponse.json({
         success: true,

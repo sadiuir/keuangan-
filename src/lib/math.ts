@@ -283,18 +283,57 @@ export function calculateAnakKostMetrics(
 }
 
 // --- 5. Expression Parser (Inline Calculator) ---
+// Safe recursive descent parser — no eval/new Function (blocked on CF Workers)
 export function parseInlineExpression(expr: string): number | null {
-  // Sanitasi: Allow only digits, +, -, *, /, ., whitespace, and parentheses ()
   const sanitized = expr.replace(/\s+/g, '');
-  const isValid = /^[\d+\-*/.()]+$/.test(sanitized);
+  if (!/^[\d+\-*/.()]+$/.test(sanitized)) return null;
 
-  if (!isValid) return null;
+  let pos = 0;
+
+  function peek(): string { return sanitized[pos] || ''; }
+  function consume(): string { return sanitized[pos++]; }
+
+  // Grammar: expr = term (('+' | '-') term)*
+  function parseExpr(): number {
+    let result = parseTerm();
+    while (peek() === '+' || peek() === '-') {
+      const op = consume();
+      const right = parseTerm();
+      result = op === '+' ? result + right : result - right;
+    }
+    return result;
+  }
+
+  // term = factor (('*' | '/') factor)*
+  function parseTerm(): number {
+    let result = parseFactor();
+    while (peek() === '*' || peek() === '/') {
+      const op = consume();
+      const right = parseFactor();
+      result = op === '*' ? result * right : result / right;
+    }
+    return result;
+  }
+
+  // factor = '(' expr ')' | number
+  function parseFactor(): number {
+    if (peek() === '(') {
+      consume(); // '('
+      const result = parseExpr();
+      consume(); // ')'
+      return result;
+    }
+    // Parse number (including decimals and leading minus for unary negation)
+    let numStr = '';
+    if (peek() === '-') numStr += consume();
+    while (/[\d.]/.test(peek())) numStr += consume();
+    return parseFloat(numStr);
+  }
 
   try {
-    // Safe evaluation using Function constructor since we sanitized it strictly
-    const fn = new Function(`return (${sanitized});`);
-    const val = fn();
-    return typeof val === 'number' && !isNaN(val) && isFinite(val) ? val : null;
+    const result = parseExpr();
+    if (pos !== sanitized.length) return null; // leftover chars = invalid
+    return typeof result === 'number' && !isNaN(result) && isFinite(result) ? result : null;
   } catch (e) {
     return null;
   }

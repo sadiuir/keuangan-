@@ -15,7 +15,7 @@ const deleteUserSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session || session.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session || session.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

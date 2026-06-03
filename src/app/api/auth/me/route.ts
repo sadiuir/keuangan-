@@ -3,7 +3,7 @@ import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = getUserFromRequest(req);
+    const session = await getUserFromRequest(req);
     if (!session) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
