@@ -1,4 +1,5 @@
-import { PrismaClient } from '../generated/prisma/client';
+// Edge client: tidak memuat binary query engine, tidak butuh fs.readdir
+import { PrismaClient } from '../generated/prisma/edge';
 
 let _client: PrismaClient | null = null;
 
@@ -6,7 +7,7 @@ function getClient(): PrismaClient {
   if (_client) return _client;
 
   if (process.env.NODE_ENV === 'production') {
-    // Cloudflare Workers: Neon HTTP mode (hanya dipanggil saat request, bukan build time)
+    // Cloudflare Workers: Neon HTTP mode
     const { neon } = require('@neondatabase/serverless');
     const { PrismaNeon } = require('@prisma/adapter-neon');
     const sql = neon(process.env.DATABASE_URL!);
