@@ -1,0 +1,116 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         String        @default("USER")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  wallets      Wallet[]
+  categories   Category[]
+  transactions Transaction[]
+  loans        Loan[]
+  allocations  Allocation[]
+}
+
+model Wallet {
+  id               String        @id @default(uuid())
+  name             String
+  balance          Decimal       @db.Decimal(15, 2)
+  initialBalance   Decimal       @db.Decimal(15, 2) @default(0.00)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions     Transaction[] @relation("SourceWallet")
+  transfersIn      Transaction[] @relation("DestinationWallet")
+  loans            Loan[]
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  name             String
+  type             String        // "INCOME" or "EXPENSE"
+  createdAt        DateTime      @default(now())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions     Transaction[]
+
+  @@unique([userId, name, type])
+}
+
+model Transaction {
+  id                   String        @id @default(uuid())
+  type                 String        // "INCOME", "EXPENSE", "TRANSFER"
+  amount               Decimal       @db.Decimal(15, 2)
+  description          String
+  is_need              Boolean       @default(false)
+  date                 DateTime      @default(now())
+  
+  walletId             String
+  wallet               Wallet        @relation("SourceWallet", fields: [walletId], references: [id], onDelete: Cascade)
+  
+  destinationWalletId  String?
+  destinationWallet    Wallet?       @relation("DestinationWallet", fields: [destinationWalletId], references: [id], onDelete: SetNull)
+  
+  categoryId           String?
+  category             Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Loan {
+  id              String   @id @default(uuid())
+  name            String
+  principal       Decimal  @db.Decimal(15, 2) // Pokok pinjaman awal
+  interestRate    Float    // Bunga bulanan (misal: 0.01 untuk 1%)
+  tenor           Int      // Tenor dalam bulan
+  remainingTenor  Int      // Sisa tenor
+  interestType    String   // "FLAT", "EFFECTIVE", "ANNUITY"
+  startDate       DateTime
+  dueDate         Int      // Tanggal jatuh tempo (1-31)
+  autoDebet       Boolean  @default(true)
+  walletId        String
+  wallet          Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Allocation {
+  id                String   @id @default(uuid())
+  tabungan          Float    // Persentase (0-100)
+  darurat           Float    // Persentase (0-100)
+  jajan             Float    // Persentase (0-100)
+  tabunganWalletId  String?
+  daruratWalletId   String?
+  jajanWalletId     String?
+  month             Int      // Bulan (1-12)
+  year              Int      // Tahun
+  createdAt         DateTime @default(now())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month, year])
+}
+
+model CronLog {
+  id          String   @id @default(uuid())
+  jobName     String
+  status      String   // "SUCCESS", "FAILED"
+  message     String
+  executedAt  DateTime @default(now())
+}
