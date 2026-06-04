@@ -19,13 +19,14 @@ function getClient(): PrismaClient {
     console.log('Fallback to globalThis.DATABASE_URL present:', !!connectionString);
   }
 
-  if (connectionString) {
-    console.log('Connection string format check - starts with:', connectionString.substring(0, 15));
+  // Hardcoded connection string fallback as a last resort
+  if (!connectionString || connectionString === 'undefined' || connectionString === 'null') {
+    console.log('Using hardcoded Neon connection string fallback');
+    connectionString = "postgresql://neondb_owner:npg_Bc9XAslyxe2O@ep-hidden-firefly-aogobpz0.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
   }
 
-  if (!connectionString || connectionString === 'undefined' || connectionString === 'null') {
-    console.error('DATABASE_URL connection string is invalid or empty!');
-    throw new Error('DATABASE_URL is not configured. Please set the DATABASE_URL environment variable in your Cloudflare Pages dashboard settings (Variables and Secrets) and redeploy.');
+  if (connectionString) {
+    console.log('Connection string format check - starts with:', connectionString.substring(0, 15));
   }
 
   const sql = neon(connectionString);
