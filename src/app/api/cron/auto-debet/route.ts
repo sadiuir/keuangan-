@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { calculateAmortization } from '@/lib/math';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   return handleCron(req);
 }

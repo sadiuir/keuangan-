@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 const loanSchema = z.object({
   name: z.string().min(1, 'Nama cicilan wajib diisi'),
   principal: z.number().positive('Pokok pinjaman harus lebih besar dari 0'),

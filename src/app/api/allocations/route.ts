@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 const allocationSchema = z.object({
   tabungan: z.number().min(0).max(100),
   darurat: z.number().min(0).max(100),

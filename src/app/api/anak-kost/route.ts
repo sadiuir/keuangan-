@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 import { calculateAmortization } from '@/lib/math';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getUserFromRequest(req);

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 const transactionSchema = z.object({
   type: z.enum(['INCOME', 'EXPENSE', 'TRANSFER']),
   amount: z.number().positive('Nominal harus lebih besar dari 0'),

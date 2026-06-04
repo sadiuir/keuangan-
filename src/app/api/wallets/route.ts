@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 const createWalletSchema = z.object({
   name: z.string().min(1, 'Nama dompet wajib diisi'),
   initialBalance: z.number().min(0, 'Saldo awal tidak boleh negatif'),

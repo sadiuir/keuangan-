@@ -1,11 +1,20 @@
-// Edge client: no binary engine, no fs.readdir, connects via DATABASE_URL directly
-import { PrismaClient } from '../generated/prisma/edge';
+import { PrismaClient } from '@prisma/client';
+import { neon } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
 
 let _client: PrismaClient | null = null;
 
 function getClient(): PrismaClient {
   if (_client) return _client;
-  _client = new PrismaClient();
+
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('DATABASE_URL is not set');
+  }
+
+  const sql = neon(connectionString);
+  const adapter = new PrismaNeon(sql);
+  _client = new PrismaClient({ adapter });
   return _client;
 }
 

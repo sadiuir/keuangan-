@@ -4,6 +4,8 @@ import { getUserFromRequest } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 const resetPasswordSchema = z.object({
   userId: z.string().min(1),
   newPassword: z.string().min(6, 'Password minimal 6 karakter'),
