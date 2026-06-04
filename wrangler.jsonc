@@ -10,5 +10,10 @@
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets"
+  },
+  "vars": {
+    "DATABASE_URL": "postgresql://neondb_owner:npg_Bc9XAslyxe2O@ep-hidden-firefly-aogobpz0.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require",
+    "JWT_SECRET": "musad_jwt_secret_2026_enterprise_level_secure_key",
+    "CRON_SECRET": "musad_cron_secret_2026_admin_automation_key"
   }
 }
